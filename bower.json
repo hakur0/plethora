@@ -1,0 +1,16 @@
+{
+  "name": "plethora",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Lucas Varela <hakuro.lucas@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3",
+    "angular-ui-router": "^1.0.20",
+    "angular": "1.7.2"
+  }
+}

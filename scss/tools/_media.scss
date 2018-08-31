@@ -1,0 +1,45 @@
+// Media query mixin based on bootstrap 3's queries
+// Default behaviour is to generate a media query that applies to only one breakpoint
+// If a $max value is provided, a min->max media query is generated
+
+$sm-min: 768px;
+$md-min: 992px;
+$lg-min: 1200px;
+
+$xs-max: 767px;
+$sm-max: 991px;
+$md-max: 1199px;
+
+
+@mixin media($size, $max: 'none'){
+  @if $max == 'none'{
+    @if $size == xs{
+      @media screen and (max-width: $xs-max){@content}
+    }
+    @else if $size == sm{
+      @media screen and (min-width: $sm-min) and (max-width: $sm-max){@content}
+    }
+    @else if $size == md{
+      @media screen and (min-width: $md-min) and (max-width: $md-max){@content}
+    }
+    @else if $size == lg{
+      @media screen and (min-width: $lg-min){@content}
+    }
+  }@else{
+    $minimum: 0;
+    $maximum: 0;
+    @if $size == sm{$minimum: $sm-min}
+    @else if $size == md{$minimum: $md-min}
+
+    @if $max == sm{$maximum: $sm-max}
+    @else if $max == md{$maximum: $md-max}
+
+    @if $size == xs{
+      @media screen and (max-width: $maximum){@content}
+    }@else{
+      @media screen and (min-width: $minimum) and (max-width: $maximum){@content}
+    }
+
+
+  }
+}

@@ -1,0 +1,45 @@
+.c-box{
+  background: #02b0e0;
+  font-size: 1.15rem;
+  text-align: center;
+  margin: auto;
+  padding: 2em;
+  max-width: 500px;
+  border-radius: 3px;
+  box-shadow: 0 10px 30px hsla(193, 100%, 84%, 1);
+
+  h2{
+    color: #fff;
+    font-family: $font-poppins;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 0 .5em;
+  }
+
+  p{
+    color: #fff;
+    margin-bottom: 1em;
+  }
+
+  input{
+    width: 100%;
+    padding: .75em;
+    border-radius: 2px;
+    border: none;
+    margin-bottom: 1em;
+
+    &:last-of-type{
+      margin: 0;
+    }
+
+    &[type=submit]{
+      color: #fff;
+      background: $color-accent;
+      font-family: $font-poppins;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0 hsla(46, 94%, 45%, 1);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+  }
+}
