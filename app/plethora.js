@@ -1,18 +1,21 @@
-angular.module('Plethora', ['ui.router'])
+angular.module('Plethora', ['ui.router', 'chart.js'])
     .constant('NAMESPACE', 'Plethora')
+    .constant('API_KEY_PLACEHOLDER', '%%APIKEY%%')
+    .constant('API_FROM_PLACEHOLDER', '%%APIFROM%%')
+    .constant('API_TO_PLACEHOLDER', '%%APITO%%')
     .config(PlethoraConfig)
     .service('KeychainService', KeychainService)
+    .service('MarketingAPIService', MarketingAPIService)
 ;
 
-function PlethoraConfig($stateProvider, $urlRouterProvider){
+function PlethoraConfig($stateProvider, $urlRouterProvider, ChartJsProvider){
     $stateProvider
-        .state({name: 'app', url: '', component: 'appComponent'})
+        .state({name: 'marketing', url: '/marketing', component: 'marketingApi'})
         .state({name: 'key', url: '/chave', component: 'loginComponent'})
     ;
 
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/marketing');
 }
-
 
 KeychainService.$inject = ['NAMESPACE'];
 function KeychainService(NAMESPACE){
@@ -25,10 +28,44 @@ function KeychainService(NAMESPACE){
     };
 }
 
+MarketingAPIService.$inject = ['$q', '$http', 'API_KEY_PLACEHOLDER', 'KeychainService'];
+function MarketingAPIService($q, $http, API_KEY_PLACEHOLDER, KeychainService){
+    const vm = this;
+
+    this.cache = null;
+    this.timestamp = null;
+    this.url = 'https://api.postgrain.com/intranet/api/marketingtrololo?app_key=%%APIKEY%%';
+
+    this.fetch = function(force = false){
+        if(!KeychainService.getKey()) return $q.reject('No API key provided.');
+
+        if(!vm.cache || force){
+            vm.cache = null;
+            vm.timestamp = null;
+
+            return $http.get(vm.url.replace(API_KEY_PLACEHOLDER, KeychainService.getKey()))
+                        .then(function(response){
+                            vm.cache = response.data;
+                            vm.timestamp = new Date();
+
+                            return {
+                                data: vm.cache,
+                                timestamp: vm.timestamp
+                            };
+                        });
+        } else{
+            return $q.resolve({
+                data: vm.cache,
+                timestamp: vm.timestamp
+            });
+        }
+    };
+}
+
 
 angular.module('Plethora').component('headerComponent', {
     template: `
-        <div class="o-header__logo" ng-click="$ctrl.goHome()">
+        <div class="o-header__logo" ng-click="Header.goHome()">
             <svg height="30" width="30" viewBox="0 0 30 30">
                 <defs><style>.cls-1{fill:#00afdd;fill-rule:evenodd;}</style></defs>
                 <path class="cls-1" d="M4,0H15a4,4,0,0,1,4,4l-.1,11a4,4,0,0,1-4,4H4a4,4,0,0,1-4-4V4A4.13,4.13,0,0,1,4.15,0" transform="translate(0 0)"/>
@@ -36,40 +73,39 @@ angular.module('Plethora').component('headerComponent', {
             </svg>
             <div class="o-header__logo-text">Plethora</div>
         </div>
-        <div class="o-header__menu">
-            <div class="o-header__menu-item" ng-click="$ctrl.changeKey()">{{$ctrl.data.key ? 'Trocar chave' : 'Inserir chave'}}</div>
+        <div class="o-header__apis">
+            <a class="o-header__apis-api" ng-repeat="api in Header.data.apis" ui-sref="{{api.state}}" ui-sref-active="active">{{api.name}}</a>
         </div>
-        <div class="o-header__key">Chave: {{$ctrl.data.key || 'Nenhuma'}}</div>
+        <div class="o-header__key" ng-click="Header.changeKey()">Chave: {{Header.data.key || 'Nenhuma'}}</div>
     `,
     controller: ['KeychainService', '$state', '$scope', function(KeychainService, $state, $scope){
         this.data = {
-            key: KeychainService.getKey()
+            key: KeychainService.getKey(),
+            apis: [
+                {name: 'Marketing', state: 'marketing'},
+                {name: 'Cupons', state: 'app.gw'},
+                {name: 'Sei lá', state: 'app.qweqwe'},
+                {name: 'Outra coisa', state: 'app.asd'},
+            ]
         };
+
+        (()=>{
+            if(!KeychainService.getKey()) $state.go('key');
+        })();
 
         $scope.$on('KeychainService:key:set', (event, key)=>{
             this.data.key = key
         });
 
         this.goHome = function(){
-            $state.go('app');
+            $state.go('marketing');
         };
 
         this.changeKey = function(){
             $state.go('key');
         }
-    }]
-});
-
-angular.module('Plethora').component('appComponent', {
-    template: `
-        <div class="o-header"></div>
-        <div class="o-content"></div>
-    `,
-    controller: ['KeychainService', '$state', function(KeychainService, $state){
-        (()=>{
-            if(!KeychainService.getKey()) $state.go('key');
-        })();
-    }]
+    }],
+    controllerAs: 'Header'
 });
 
 angular.module('Plethora').component('loginComponent', {
@@ -90,8 +126,121 @@ angular.module('Plethora').component('loginComponent', {
             if(key){
                 KeychainService.setKey(key);
                 $rootScope.$broadcast('KeychainService:key:set', key);
-                $state.go('app');
+                $state.go('marketing');
             }
         }
     }]
+});
+
+angular.module('Plethora').component('marketingApi', {
+    template: `
+        <div class="o-api__header">
+            Última atualização às {{MarketingAPI.data.timestamp | date:'H:mm'}}. <a class="p-api-update" href="#" ng-click="MarketingAPI.update()" ">Atualizar agora</a>
+        </div>
+        <div class="o-api__content" ng-class="{'o-api__content--loading': !MarketingAPI.data.data}">
+        
+            <div class="c-stat-group row">
+                <!--Contas-->
+                <div class="c-stats col-md-12">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Contas</div>
+                    </div>
+                    <div class="c-stats__body row">
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.contas.total | number}}</div>
+                            <div class="c-stat__title">Total</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.contas.hoje | number}}</div>
+                            <div class="c-stat__title">Hoje</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.contas.ontem | number}}</div>
+                            <div class="c-stat__title">Ontem</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.novos_cadastros_por_dia | number:0}}</div>
+                            <div class="c-stat__title">Cadastros por dia</div>
+                        </div>
+                    </div>
+                </div>
+                <!--Contas-->
+                <!--Assinantes-->
+                <div class="c-stats col-md-12">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Assinantes</div>
+                    </div>
+                    <div class="c-stats__body row">
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes | number}}</div>
+                            <div class="c-stat__title">Total</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.novos_por_dia | number}}</div>
+                            <div class="c-stat__title">Novos por dia</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.deixam_por_dia | number}}</div>
+                            <div class="c-stat__title">Saindo por dia</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.pagantes | number}}</div>
+                            <div class="c-stat__title">Total de pagantes</div>
+                        </div>
+                    </div>
+                </div>
+                <!--Assinantes-->
+                <!--Contas sociais-->
+                <div class="c-stats col-md-12">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Assinantes</div>
+                    </div>
+                    <div class="c-stats__body row">
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes | number}}</div>
+                            <div class="c-stat__title">Total</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.novos_por_dia | number}}</div>
+                            <div class="c-stat__title">Novos por dia</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.deixam_por_dia | number}}</div>
+                            <div class="c-stat__title">Saindo por dia</div>
+                        </div>
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.pagantes | number}}</div>
+                            <div class="c-stat__title">Total de pagantes</div>
+                        </div>
+                    </div>
+                </div>
+                <!--Contas sociais-->
+            </div>
+            
+        </div>
+    `,
+    controller: ['MarketingAPIService', function(MarketingAPIService){
+        const vm = this;
+
+        this.data = {};
+
+        (()=>{
+            MarketingAPIService.fetch().then(function(response){
+                vm.data.data = response.data;
+                vm.data.timestamp = response.timestamp;
+            });
+        })();
+
+        this.update = function(){
+            if(vm.data.data){
+                vm.data = {};
+
+                MarketingAPIService.fetch(true).then(function(response){
+                    vm.data.data = response.data;
+                    vm.data.timestamp = response.timestamp;
+                });
+            }
+        }
+    }],
+    controllerAs: 'MarketingAPI'
 });

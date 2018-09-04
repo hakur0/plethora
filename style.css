@@ -9,18 +9,41 @@
 ** 8. Scopes
 ** 9. Utilities
 */
+.c-stat__title, .c-stat__value {
+  transition: all 0.225s cubic-bezier(0.4, 0, 0.2, 1); }
+
 html, body {
-  font-family: "Lato", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 14px; }
 
+body {
+  overflow-y: scroll;
+  background-color: #f8f8f8; }
+
+.o-api__content.o-api__content--loading .c-stat__title, .o-api__content.o-api__content--loading .c-stat__value {
+  color: transparent; }
+
+.o-api__content.o-api__content--loading .c-stats__body {
+  background-image: linear-gradient(to right, #ffffff 10%, #f0f4f4 18%, #ffffff 33%);
+  background-repeat: no-repeat;
+  animation: a-c-stats__body-loading linear infinite 2s; }
+
+@keyframes a-c-stats__body-loading {
+  0% {
+    background-position: -50vw; }
+  25% {
+    background-position: 0vw; }
+  100% {
+    background-position: 150vw; } }
+
 .o-container {
-  min-height: 100vh; }
+  min-height: calc(100vh - 60px); }
 
 .o-header {
   display: block;
-  height: 50px;
-  padding: 10px 0;
-  align-items: start; }
+  height: 60px;
+  padding-top: 15px;
+  padding-bottom: 15px; }
   .o-header > * {
     float: right; }
 
@@ -35,17 +58,18 @@ html, body {
     border-left: 1px solid #aaa;
     line-height: 30px;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 400;
     color: #00aedd; }
 
 .o-header__key {
   font-family: monospace;
   color: #189abf;
-  background: #e6f9ff;
+  background: #d4eff7;
   border-radius: 3px;
   padding: 5px 10px 4px;
   text-shadow: 1px 1px rgba(255, 255, 255, 0.25);
-  margin-right: 1em; }
+  margin-right: 1em;
+  cursor: pointer; }
 
 .o-header__menu-item {
   color: #fff;
@@ -57,6 +81,23 @@ html, body {
   text-transform: uppercase;
   font-size: 13px;
   cursor: pointer; }
+
+.o-header__apis {
+  float: left;
+  padding-left: 2em; }
+
+.o-header__apis-api {
+  color: #189abf;
+  border-radius: 3px;
+  padding: 5px 10px 4px;
+  margin-right: 1em;
+  display: inline-block;
+  font-size: 15px; }
+  .o-header__apis-api:focus, .o-header__apis-api:hover {
+    text-decoration: none; }
+  .o-header__apis-api.active {
+    background: #00acdb;
+    color: #fff; }
 
 login-component {
   display: flex;
@@ -77,7 +118,7 @@ login-component {
   box-shadow: 0 10px 30px #adedff; }
   .c-box h2 {
     color: #fff;
-    font-family: "Poppins", sans-serif;
+    font-family: "Zilla Slab", serif;
     font-weight: 700;
     text-transform: uppercase;
     margin: 0 0 .5em; }
@@ -87,7 +128,7 @@ login-component {
   .c-box input {
     width: 100%;
     padding: .75em;
-    border-radius: 2px;
+    border-radius: 3px;
     border: none;
     margin-bottom: 1em; }
     .c-box input:last-of-type {
@@ -95,10 +136,55 @@ login-component {
     .c-box input[type=submit] {
       color: #fff;
       background: #fdc420;
-      font-family: "Poppins", sans-serif;
+      font-family: "Zilla Slab", serif;
       text-transform: uppercase;
       text-shadow: 2px 2px 0 #dfac07;
       font-weight: 700;
       font-size: 1.1em; }
+
+.c-stat-group__title {
+  font-size: 2.5em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem; }
+
+.c-stat__title {
+  font-size: 17px;
+  color: #365a63;
+  font-weight: 500;
+  margin-top: -0.5rem; }
+
+.c-stat {
+  margin-bottom: 1.5em;
+  text-align: center; }
+  .c-stat:not(:last-child) {
+    border-right: 1px solid #e7edee; }
+  .c-stat .ng-binding {
+    min-height: calc(1em * 1.42857143); }
+
+.c-stat__value {
+  font-size: 40px;
+  font-weight: 600;
+  color: #063947; }
+
+.c-stat__subtitle {
+  font-size: 15px;
+  color: #555;
+  margin-top: -0.2em; }
+
+.c-stats {
+  margin-bottom: 2em; }
+
+.c-stats__body {
+  box-shadow: 0 2px 14px -3px rgba(8, 75, 94, 0.2);
+  border-radius: 3px;
+  padding: 1.5em 1em .5em;
+  background-color: #fff; }
+
+.c-stats__header-title {
+  font-size: 32px;
+  margin: .75rem 0;
+  font-weight: 300;
+  color: #063947; }
 
 /*# sourceMappingURL=scss/style.css.map */

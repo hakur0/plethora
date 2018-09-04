@@ -5,12 +5,12 @@
   margin: auto;
   padding: 2em;
   max-width: 500px;
-  border-radius: 3px;
+  border-radius: $size-border-radius;
   box-shadow: 0 10px 30px hsla(193, 100%, 84%, 1);
 
   h2{
     color: #fff;
-    font-family: $font-poppins;
+    font-family: $font-zilla-slab;
     font-weight: 700;
     text-transform: uppercase;
     margin: 0 0 .5em;
@@ -24,7 +24,7 @@
   input{
     width: 100%;
     padding: .75em;
-    border-radius: 2px;
+    border-radius: $size-border-radius;
     border: none;
     margin-bottom: 1em;
 
@@ -35,7 +35,7 @@
     &[type=submit]{
       color: #fff;
       background: $color-accent;
-      font-family: $font-poppins;
+      font-family: $font-zilla-slab;
       text-transform: uppercase;
       text-shadow: 2px 2px 0 hsla(46, 94%, 45%, 1);
       font-weight: 700;

@@ -1,0 +1,25 @@
+.o-api__content{
+  &.o-api__content--loading{
+    .c-stat__title, .c-stat__value{
+      color: transparent;
+    }
+
+    .c-stats__body{
+      background-image: linear-gradient(to right, #ffffff 10%, hsla(189, 17%, 95%, 1) 18%, #ffffff 33%);
+      background-repeat: no-repeat;
+      animation: a-c-stats__body-loading linear infinite 2s;
+    }
+
+    @keyframes a-c-stats__body-loading{
+      0%{
+        background-position: -50vw;
+      }
+      25%{
+        background-position: 0vw;
+      }
+      100%{
+        background-position: 150vw;
+      }
+    }
+  }
+}

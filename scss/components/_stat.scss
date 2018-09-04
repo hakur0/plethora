@@ -1,0 +1,36 @@
+.c-stat__title {
+  @extend %t-animated;
+
+  font-size: 17px;
+  color: hsla(193, 30%, 30%, 1);
+  font-weight: 500;
+  margin-top: -0.5rem;
+}
+
+.c-stat {
+  margin-bottom: 1.5em;
+  text-align: center;
+
+  &:not(:last-child){
+    border-right: 1px solid hsla(190, 18%, 92%, 1);
+  }
+
+  .ng-binding{
+    min-height: calc(1em * 1.42857143);
+  }
+}
+
+.c-stat__value {
+  @extend %t-animated;
+
+  font-size: 40px;
+  font-weight: 600;
+  color: #063947;
+}
+
+
+.c-stat__subtitle {
+  font-size: 15px;
+  color: #555;
+  margin-top: -0.2em;
+}

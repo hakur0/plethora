@@ -1,4 +1,9 @@
 html, body{
-  font-family: $font-lato;
+  font-family: $font-roboto;
   font-size: 14px;
+}
+
+body{
+  overflow-y: scroll;
+  background-color: #f8f8f8;
 }
