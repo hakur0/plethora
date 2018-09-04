@@ -165,6 +165,7 @@ angular.module('Plethora').component('marketingApi', {
                     </div>
                 </div>
                 <!--Contas-->
+                
                 <!--Assinantes-->
                 <div class="c-stats col-md-12">
                     <div class="c-stats__header">
@@ -190,31 +191,46 @@ angular.module('Plethora').component('marketingApi', {
                     </div>
                 </div>
                 <!--Assinantes-->
-                <!--Contas sociais-->
+                
+                <!--Campanhas-->
                 <div class="c-stats col-md-12">
                     <div class="c-stats__header">
-                        <div class="c-stats__header-title">Assinantes</div>
+                        <div class="c-stats__header-title">Campanhas</div>
+                        <div class="c-stats__header-tab" ng-click="MarketingAPI.data.campaignsTab = 'today'">Hoje</div>
+                        <div class="c-stats__header-tab" ng-click="MarketingAPI.data.campaignsTab = 'yesterday'">Ontem</div>
                     </div>
                     <div class="c-stats__body row">
-                        <div class="c-stat col-md-3">
-                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes | number}}</div>
-                            <div class="c-stat__title">Total</div>
+                        <div class="c-stat c-stat--table col-md-12" ng-show="MarketingAPI.data.campaignsTab === 'today'"> 
+                            hoje
                         </div>
-                        <div class="c-stat col-md-3">
-                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.novos_por_dia | number}}</div>
-                            <div class="c-stat__title">Novos por dia</div>
-                        </div>
-                        <div class="c-stat col-md-3">
-                            <div class="c-stat__value">{{MarketingAPI.data.data.assinantes_statics.deixam_por_dia | number}}</div>
-                            <div class="c-stat__title">Saindo por dia</div>
-                        </div>
-                        <div class="c-stat col-md-3">
-                            <div class="c-stat__value">{{MarketingAPI.data.data.pagantes | number}}</div>
-                            <div class="c-stat__title">Total de pagantes</div>
+                        <div class="c-stat c-stat--table col-md-12" ng-show="MarketingAPI.data.campaignsTab === 'yesterday'"> 
+                            ontem
                         </div>
                     </div>
                 </div>
-                <!--Contas sociais-->
+                <!--Campanhas-->
+                
+                <!--Outros-->
+                <div class="c-stats col-md-12">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Outros</div>
+                    </div>
+                    <div class="c-stats__body row">
+                        <div class="c-stat col-md-4">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.total_instagram_accounts | number}}</div>
+                            <div class="c-stat__title">Contas do Instagram</div>
+                        </div>
+                        <div class="c-stat col-md-4">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.total_channels | number}}</div>
+                            <div class="c-stat__title">Total de canais</div>
+                        </div>
+                        <div class="c-stat col-md-4">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.total_social | number}}</div>
+                            <div class="c-stat__title">Total social</div>
+                        </div>
+                    </div>
+                </div>
+                <!--Outros-->
             </div>
             
         </div>
@@ -222,7 +238,11 @@ angular.module('Plethora').component('marketingApi', {
     controller: ['MarketingAPIService', function(MarketingAPIService){
         const vm = this;
 
-        this.data = {};
+        this.data = {
+            data: null,
+            timestamp: null,
+            campaignsTab: 'today'
+        };
 
         (()=>{
             MarketingAPIService.fetch().then(function(response){
@@ -233,7 +253,8 @@ angular.module('Plethora').component('marketingApi', {
 
         this.update = function(){
             if(vm.data.data){
-                vm.data = {};
+                vm.data.data = null;
+                vm.data.timestamp = null;
 
                 MarketingAPIService.fetch(true).then(function(response){
                     vm.data.data = response.data;
