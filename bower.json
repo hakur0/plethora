@@ -15,6 +15,7 @@
     "angular-chart.js": "^1.1.1",
     "moment": "^2.22.2",
     "ng-table-bundle": "~3",
-    "angular-i18n": "^1.7.3"
+    "angular-i18n": "^1.7.3",
+    "angular-moment-picker": "moment-picker#^0.10.2"
   }
 }
