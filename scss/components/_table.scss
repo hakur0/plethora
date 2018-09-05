@@ -1,0 +1,49 @@
+.c-table{
+  width: 100%;
+
+  thead{
+    border-bottom: 1px solid hsla(190, 14%, 83%, 1);
+
+    th{
+      text-align: left;
+      font-size: 1.15em;
+      padding: .8rem 1em;
+      color: #063947;
+
+      &.sortable{
+        &.sort-asc, &.sort-desc{
+          background-color: hsla(193, 45%, 88%, 1);
+          text-shadow: 1px 1px 0 #ffffff;
+        }
+      }
+
+      &.filter{
+        padding: 6px;
+        
+        input{
+          border: 1px solid hsla(190, 14%, 70%, 1);
+          border-radius: 2px;
+          box-shadow: none;
+        }
+      }
+    }
+
+    tr{
+      &.ng-table-filters{
+        border-top: 1px solid #ced8da;
+      }
+    }
+  }
+
+  tbody{
+    td {
+      border-bottom: 1px solid #e6ebec;
+      font-size: 15px;
+      padding: .65rem 1em;
+    }
+
+    tr:nth-child(odd){
+      background-color: hsla(193, 45%, 98%, 1);
+    }
+  }
+}

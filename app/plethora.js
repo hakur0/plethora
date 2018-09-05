@@ -1,4 +1,4 @@
-angular.module('Plethora', ['ui.router', 'chart.js'])
+angular.module('Plethora', ['ui.router', 'chart.js', 'ngTable'])
     .constant('NAMESPACE', 'Plethora')
     .constant('API_KEY_PLACEHOLDER', '%%APIKEY%%')
     .constant('API_FROM_PLACEHOLDER', '%%APIFROM%%')
@@ -45,6 +45,8 @@ function MarketingAPIService($q, $http, API_KEY_PLACEHOLDER, KeychainService){
 
             return $http.get(vm.url.replace(API_KEY_PLACEHOLDER, KeychainService.getKey()))
                         .then(function(response){
+                            if(response.data.code && response.data.code === 'NOT_ALLOWED') return $q.reject('API key provided is invalid.');
+
                             vm.cache = response.data;
                             vm.timestamp = new Date();
 
@@ -83,9 +85,6 @@ angular.module('Plethora').component('headerComponent', {
             key: KeychainService.getKey(),
             apis: [
                 {name: 'Marketing', state: 'marketing'},
-                {name: 'Cupons', state: 'app.gw'},
-                {name: 'Sei lá', state: 'app.qweqwe'},
-                {name: 'Outra coisa', state: 'app.asd'},
             ]
         };
 
@@ -134,9 +133,7 @@ angular.module('Plethora').component('loginComponent', {
 
 angular.module('Plethora').component('marketingApi', {
     template: `
-        <div class="o-api__header">
-            Última atualização às {{MarketingAPI.data.timestamp | date:'H:mm'}}. <a class="p-api-update" href="#" ng-click="MarketingAPI.update()" ">Atualizar agora</a>
-        </div>
+        <div class="o-api__header"></div>
         <div class="o-api__content" ng-class="{'o-api__content--loading': !MarketingAPI.data.data}">
         
             <div class="c-stat-group row">
@@ -144,6 +141,12 @@ angular.module('Plethora').component('marketingApi', {
                 <div class="c-stats col-md-12">
                     <div class="c-stats__header">
                         <div class="c-stats__header-title">Contas</div>
+                        <div class="c-stats__header-update" ng-if="MarketingAPI.data.data">
+                            Última atualização às {{MarketingAPI.data.timestamp | date:'H:mm'}}. <a class="p-api-update" href="#" ng-click="MarketingAPI.update()" ">Atualizar agora</a>
+                        </div>
+                        <div class="c-stats__header-update" ng-if="!MarketingAPI.data.data">
+                            Carregando dados...
+                        </div>
                     </div>
                     <div class="c-stats__body row">
                         <div class="c-stat col-md-3">
@@ -185,30 +188,66 @@ angular.module('Plethora').component('marketingApi', {
                             <div class="c-stat__title">Saindo por dia</div>
                         </div>
                         <div class="c-stat col-md-3">
-                            <div class="c-stat__value">{{MarketingAPI.data.data.pagantes | number}}</div>
-                            <div class="c-stat__title">Total de pagantes</div>
+                            <div class="c-stat__value">{{MarketingAPI.data.data.conversao_total | number}}%</div>
+                            <div class="c-stat__title">Conversão total</div>
                         </div>
                     </div>
                 </div>
                 <!--Assinantes-->
                 
-                <!--Campanhas-->
+                <!--Campanhas hoje-->
+                <div class="c-stats col-md-6 col-md">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Campanhas</div>
+                        <div class="c-stats__header-subtitle">Hoje</div>
+                    </div>
+                    <div class="c-stats__body c-stats__body--table c-stats__body--minus-margin-left">
+                        <table class="c-table" ng-table="MarketingAPI.data.campaignsToday"> 
+                            <tr ng-repeat="row in $data"> 
+                                <td data-title="'Campanha'" sortable="'name'">{{row.name}}</td>
+                                <td data-title="'Quantidade'" sortable="'value'">{{row.value}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!--Campanhas hoje-->
+                
+                <!--Campanhas ontem-->
+                <div class="c-stats col-md-6">
+                    <div class="c-stats__header">
+                        <div class="c-stats__header-title">Campanhas</div>
+                        <div class="c-stats__header-subtitle">Ontem</div>
+                    </div>
+                    <div class="c-stats__body c-stats__body--table c-stats__body--minus-margin-right">
+                        <table class="c-table" ng-table="MarketingAPI.data.campaignsYesterday"> 
+                            <tr ng-repeat="row in $data"> 
+                                <td data-title="'Campanha'" sortable="'name'">{{row.name}}</td>
+                                <td data-title="'Quantidade'" sortable="'value'">{{row.value}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!--Campanhas ontem-->
+                
+                <!--Campanhas total-->
                 <div class="c-stats col-md-12">
                     <div class="c-stats__header">
                         <div class="c-stats__header-title">Campanhas</div>
-                        <div class="c-stats__header-tab" ng-click="MarketingAPI.data.campaignsTab = 'today'">Hoje</div>
-                        <div class="c-stats__header-tab" ng-click="MarketingAPI.data.campaignsTab = 'yesterday'">Ontem</div>
+                        <div class="c-stats__header-subtitle">Todas</div>
                     </div>
-                    <div class="c-stats__body row">
-                        <div class="c-stat c-stat--table col-md-12" ng-show="MarketingAPI.data.campaignsTab === 'today'"> 
-                            hoje
-                        </div>
-                        <div class="c-stat c-stat--table col-md-12" ng-show="MarketingAPI.data.campaignsTab === 'yesterday'"> 
-                            ontem
-                        </div>
+                    <div class="c-stats__body c-stats__body--table c-stats__body--minus-margin-right c-stats__body--minus-margin-left">
+                        <table class="c-table" ng-table="MarketingAPI.data.campaignConversions">
+                            <tr ng-repeat="row in $data"> 
+                                <td data-title="'Campanha'" filter="{name: 'text'}" sortable="'name'">{{row.name}}</td>
+                                <td data-title="'Cadastros'" sortable="'registrations'">{{row.registrations | number}}</td>
+                                <td data-title="'Conversões'" sortable="'conversions'">{{row.conversions | number}}</td>
+                                <td data-title="'Porcentagem'" sortable="'percent'">{{row.percent || 0}}%</td>
+                                <td data-title="'Total em R$'" sortable="'money'">{{row.money | currency}}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-                <!--Campanhas-->
+                <!--Campanhas total-->
                 
                 <!--Outros-->
                 <div class="c-stats col-md-12">
@@ -216,15 +255,19 @@ angular.module('Plethora').component('marketingApi', {
                         <div class="c-stats__header-title">Outros</div>
                     </div>
                     <div class="c-stats__body row">
-                        <div class="c-stat col-md-4">
+                        <div class="c-stat col-md-3">
+                            <div class="c-stat__value">{{MarketingAPI.data.data.pagantes | number}}</div>
+                            <div class="c-stat__title">Total de pagantes</div>
+                        </div>
+                        <div class="c-stat col-md-3">
                             <div class="c-stat__value">{{MarketingAPI.data.data.total_instagram_accounts | number}}</div>
                             <div class="c-stat__title">Contas do Instagram</div>
                         </div>
-                        <div class="c-stat col-md-4">
+                        <div class="c-stat col-md-3">
                             <div class="c-stat__value">{{MarketingAPI.data.data.total_channels | number}}</div>
                             <div class="c-stat__title">Total de canais</div>
                         </div>
-                        <div class="c-stat col-md-4">
+                        <div class="c-stat col-md-3">
                             <div class="c-stat__value">{{MarketingAPI.data.data.total_social | number}}</div>
                             <div class="c-stat__title">Total social</div>
                         </div>
@@ -235,19 +278,22 @@ angular.module('Plethora').component('marketingApi', {
             
         </div>
     `,
-    controller: ['MarketingAPIService', function(MarketingAPIService){
+    controller: ['MarketingAPIService', 'NgTableParams', '$state', function(MarketingAPIService, NgTableParams, $state){
         const vm = this;
 
         this.data = {
             data: null,
             timestamp: null,
-            campaignsTab: 'today'
+            campaignsToday: null,
+            campaignsYesterday: null,
+            campaignConversions: null
         };
 
         (()=>{
             MarketingAPIService.fetch().then(function(response){
-                vm.data.data = response.data;
-                vm.data.timestamp = response.timestamp;
+                updateData(response);
+            }).catch(function(){
+                $state.go('key');
             });
         })();
 
@@ -255,12 +301,51 @@ angular.module('Plethora').component('marketingApi', {
             if(vm.data.data){
                 vm.data.data = null;
                 vm.data.timestamp = null;
+                vm.data.campaignsToday.settings({dataset: []});
+                vm.data.campaignsToday.reload({});
+                vm.data.campaignsYesterday.settings({dataset: []});
+                vm.data.campaignsYesterday.reload();
+                vm.data.campaignConversions.settings({dataset: []});
+                vm.data.campaignConversions.reload();
 
                 MarketingAPIService.fetch(true).then(function(response){
-                    vm.data.data = response.data;
-                    vm.data.timestamp = response.timestamp;
+                    updateData(response);
                 });
             }
+        };
+
+        function updateData(response){
+            vm.data.data = response.data;
+            vm.data.timestamp = response.timestamp;
+
+            // Campaigns
+            let _campaignToday = [];
+            let _campaignYesterday = [];
+
+            for(let key in response.data.campaign_hoje){
+                if(response.data.campaign_hoje.hasOwnProperty(key)) _campaignToday.push({name: key, value: response.data.campaign_hoje[key]});
+            }
+            for(let key in response.data.campaign_ontem){
+                if(response.data.campaign_ontem.hasOwnProperty(key)) _campaignYesterday.push({name: key, value: response.data.campaign_ontem[key]});
+            }
+
+            vm.data.campaignsToday = new NgTableParams({sorting: {value: 'desc'}}, {dataset: _campaignToday, counts: []});
+            vm.data.campaignsYesterday = new NgTableParams({sorting: {value: 'desc'}}, {dataset: _campaignYesterday, counts: []});
+
+            // Campaign conversions
+            let _campaignConversions = [];
+
+            for(let key in response.data.campaign_convert){
+                if(response.data.campaign_convert.hasOwnProperty(key)) _campaignConversions.push({
+                    name: key,
+                    conversions: response.data.campaign_convert[key].total_convertido || 0,
+                    registrations: response.data.campaign_convert[key].total_cadastro || 0,
+                    percent: response.data.campaign_convert[key].percent || 0,
+                    money: response.data.campaign_convert[key].total_money || 0
+                });
+            }
+
+            vm.data.campaignConversions = new NgTableParams({sorting: {conversions: 'desc'}}, {dataset: _campaignConversions, counts: []});
         }
     }],
     controllerAs: 'MarketingAPI'

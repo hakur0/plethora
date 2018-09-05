@@ -1,23 +1,18 @@
 .c-box{
-  background: #02b0e0;
   font-size: 1.15rem;
-  text-align: center;
   margin: auto;
   padding: 2em;
   max-width: 500px;
-  border-radius: $size-border-radius;
-  box-shadow: 0 10px 30px hsla(193, 100%, 84%, 1);
+  box-shadow: 0 2px 14px -3px rgba(8, 75, 94, 0.2);
+  border-radius: 3px;
+  background-color: #fff;
 
   h2{
-    color: #fff;
-    font-family: $font-zilla-slab;
     font-weight: 700;
-    text-transform: uppercase;
     margin: 0 0 .5em;
   }
 
   p{
-    color: #fff;
     margin-bottom: 1em;
   }
 
@@ -25,8 +20,12 @@
     width: 100%;
     padding: .75em;
     border-radius: $size-border-radius;
-    border: none;
+    border: 2px solid $color-main;
     margin-bottom: 1em;
+
+    &:focus{
+      outline: none;
+    }
 
     &:last-of-type{
       margin: 0;
@@ -34,12 +33,10 @@
 
     &[type=submit]{
       color: #fff;
-      background: $color-accent;
-      font-family: $font-zilla-slab;
-      text-transform: uppercase;
-      text-shadow: 2px 2px 0 hsla(46, 94%, 45%, 1);
+      background: $color-main;
       font-weight: 700;
       font-size: 1.1em;
+      border: none;
     }
   }
 }

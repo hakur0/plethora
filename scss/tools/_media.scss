@@ -9,6 +9,7 @@ $lg-min: 1200px;
 $xs-max: 767px;
 $sm-max: 991px;
 $md-max: 1199px;
+$lg-max: 9999px;
 
 
 @mixin media($size, $max: 'none'){
@@ -33,6 +34,7 @@ $md-max: 1199px;
 
     @if $max == sm{$maximum: $sm-max}
     @else if $max == md{$maximum: $md-max}
+    @else if $max == lg{$maximum: $lg-max}
 
     @if $size == xs{
       @media screen and (max-width: $maximum){@content}
