@@ -53,3 +53,4 @@ typings/
 .yarn-integrity
 .env
 .next
+/.deployconfig

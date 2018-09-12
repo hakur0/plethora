@@ -1,24 +1,32 @@
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
-var sassGlob = require('gulp-sass-glob');
+let gulp = require('gulp');
+let sass = require('gulp-sass');
+let del = require('del');
+let sourcemaps = require('gulp-sourcemaps');
+let sassGlob = require('gulp-sass-glob');
+let awspublish = require('gulp-awspublish');
+let deployconfig = require('./.deployconfig');
+let gulpFilter = require('gulp-filter');
+let gulpUseref = require('gulp-useref');
+let gulpUtil = require('gulp-util');
+let gulpIf = require('gulp-if');
+let gulpUglify = require('gulp-uglify');
+let gulpRev = require('gulp-rev');
+let gulpRevReplace = require('gulp-rev-replace');
+let gulpCssnano = require('gulp-cssnano');
 
-var files = {
+
+let files = {
     scss: 'scss/**/*.scss'
 };
 
-var directories = {
+let directories = {
     base: '',
     scss: 'scss/'
 };
 
-gulp.task('default', ['serve']);
-
-gulp.task('serve', ['sassify'], function () {
-    gulp.watch(files.scss, ['sassify']);
+gulp.task('clean', function(){
+    return del('dist/**');
 });
-
-gulp.task('build', ['sassify']);
 
 gulp.task('sassify', function () {
     return gulp.src(files.scss)
@@ -29,3 +37,38 @@ gulp.task('sassify', function () {
                .pipe(gulp.dest(directories.base));
 });
 
+gulp.task('minify', ['clean', 'sassify'], function(){
+    let htmlFilter = gulpFilter(['index.html'], {restore: true});
+
+    return gulp.src('index.html')
+               .pipe(gulpUseref().on('error', gulpUtil.log))
+               .pipe(gulpIf('*.js', gulpUglify()))
+               .pipe(htmlFilter)
+               .pipe(gulpRev())
+               .pipe(htmlFilter.restore)
+               .pipe(gulpRevReplace())
+               .pipe(gulpIf('*.css', gulpCssnano({zindex: false})))
+               .pipe(gulp.dest('dist'))
+});
+
+gulp.task('build', ['minify'], function(){
+    return gulp.src([
+        ''
+    ]);
+});
+
+gulp.task('deploy', function(){
+    let publisher = awspublish.create(deployconfig);
+
+    gulp.src([
+        'app/**/*',
+        'index.html',
+        'style.css'
+    ])
+});
+
+gulp.task('serve', ['sassify'], function () {
+    gulp.watch(files.scss, ['sassify']);
+});
+
+gulp.task('default', ['serve']);
