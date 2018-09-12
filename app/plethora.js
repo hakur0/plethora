@@ -12,6 +12,7 @@ angular.module('Plethora', ['ui.router', 'chart.js', 'ngTable', 'moment-picker']
        .service('ConversionsAPIService', ConversionsAPIService)
 ;
 
+PlethoraConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
 function PlethoraConfig($stateProvider, $urlRouterProvider){
     $stateProvider
         .state({name: 'marketing', url: '/marketing', component: 'marketingApi'})

@@ -54,3 +54,4 @@ typings/
 .env
 .next
 /.deployconfig
+/dist/

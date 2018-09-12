@@ -9,9 +9,9 @@ let gulpFilter = require('gulp-filter');
 let gulpUseref = require('gulp-useref');
 let gulpUtil = require('gulp-util');
 let gulpIf = require('gulp-if');
-let gulpUglify = require('gulp-uglify');
+let gulpUglify = require('gulp-uglify-es').default;
 let gulpRev = require('gulp-rev');
-let gulpRevReplace = require('gulp-rev-replace');
+let gulpRevRewrite = require('gulp-rev-rewrite');
 let gulpCssnano = require('gulp-cssnano');
 
 
@@ -38,15 +38,15 @@ gulp.task('sassify', function () {
 });
 
 gulp.task('minify', ['clean', 'sassify'], function(){
-    let htmlFilter = gulpFilter(['index.html'], {restore: true});
+    let htmlFilter = gulpFilter(['**/*', '!index.html'], {restore: true});
 
     return gulp.src('index.html')
-               .pipe(gulpUseref().on('error', gulpUtil.log))
-               .pipe(gulpIf('*.js', gulpUglify()))
+               .pipe(gulpUseref())
+               .pipe(gulpIf('*.js', gulpUglify())).on('error', function (err) { gulpUtil.log(gulpUtil.colors.red('[Error]'), err.toString()); })
                .pipe(htmlFilter)
                .pipe(gulpRev())
                .pipe(htmlFilter.restore)
-               .pipe(gulpRevReplace())
+               .pipe(gulpRevRewrite())
                .pipe(gulpIf('*.css', gulpCssnano({zindex: false})))
                .pipe(gulp.dest('dist'))
 });
